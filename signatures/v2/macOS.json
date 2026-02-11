@@ -1,0 +1,70 @@
+{
+  "format_version": "2.0.0",
+  "dimensions": {
+    "D1": "Static TCP fingerprinting (TTL, window size, options)",
+    "D2": "TCP behavior under load",
+    "D3": "Temporal analysis (jitter, response speed)",
+    "D4": "ICMP response patterns",
+    "D5": "Error handling patterns",
+    "D6": "UDP behavior",
+    "D7": "TLS/SSL handshake characteristics",
+    "D8": "Hardware/virtualization detection"
+  },
+  "structure": {
+    "probe_responses": {
+      "tcp_syn_ack": {
+        "ttl": 64,
+        "window_size": 65535,
+        "options": ["MSS", "WScale", "SACK", "Timestamp"],
+        "df_bit": true,
+        "mss": 1460,
+        "wscale": 5,
+        "sack_permitted": true,
+        "timestamp": true
+      },
+      "tcp_rst": {
+        "ttl": 64,
+        "window_size": 0,
+        "options": []
+      }
+    },
+    "temporal": {
+      "response_time_ms": 0.15,
+      "jitter_ms": 0.03,
+      "consistency_score": 0.9,
+      "response_speed": "fast",
+      "scheduler_behavior": "hybrid"
+    },
+    "metadata": {
+      "target_os": "macOS",
+      "version": "11+",
+      "confidence": 0.88,
+      "probe_timestamp": "2024-01-15T10:30:00Z",
+      "environment": "physical",
+      "vendor": "Apple",
+      "family": "macOS",
+      "device_type": "workstation"
+    },
+    "behavioral": {
+      "congestion": {
+        "algorithm": "cubic",
+        "window_scaling": true
+      },
+      "ip": {
+        "ttl": 64,
+        "df_flag": true,
+        "ip_id_pattern": "random"
+      },
+      "hardware": {
+        "virtualization": false,
+        "type": "physical"
+      },
+      "quirks": []
+    }
+  },
+  "validation_rules": {
+    "ttl_range": {"min": 1, "max": 255},
+    "window_size_range": {"min": 1, "max": 65535},
+    "confidence_range": {"min": 0.0, "max": 1.0}
+  }
+}

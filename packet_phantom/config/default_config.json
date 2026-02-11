@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "general": {
+    "default_port": 80,
+    "default_ttl": 64,
+    "max_packet_size": 65535,
+    "log_level": "INFO",
+    "output_format": "color"
+  },
+  "security": {
+    "privilege_drop_user": "nobody",
+    "resource_limits": {
+      "max_memory_mb": 200,
+      "max_cpu_percent": 70
+    },
+    "rate_limits": {
+      "default_rate": 100,
+      "max_rate": 100000,
+      "burst_size": 1000
+    },
+    "input_validation": {
+      "validate_ips": true,
+      "validate_ports": true,
+      "validate_payloads": true,
+      "max_payload_size": 1400
+    }
+  },
+  "network": {
+    "source_ip": "auto",
+    "interface": "auto",
+    "timeout": 5.0,
+    "socket_buffer_size": 65535
+  },
+  "evasion": {
+    "enabled": false,
+    "ttl_mode": "fixed",
+    "ttl_range": {
+      "min": 56,
+      "max": 64
+    },
+    "options_mode": "fixed",
+    "fragmentation": {
+      "enabled": false,
+      "mtu": 1500
+    },
+    "padding": {
+      "enabled": false,
+      "min_size": 0,
+      "max_size": 100
+    }
+  },
+  "output": {
+    "pcap_enabled": false,
+    "pcap_directory": "/tmp/pcaps",
+    "console_enabled": true,
+    "colors_enabled": true
+  }
+}

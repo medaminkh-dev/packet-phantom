@@ -1,0 +1,419 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Behavioral OS Fingerprinting Signature Schema v2.0.0",
+  "description": "JSON schema for behavioral OS fingerprinting signatures. Enables multi-dimensional analysis across 8 behavioral dimensions for accurate OS identification.",
+  "type": "object",
+  "required": ["format_version", "dimensions", "structure"],
+  "properties": {
+    "format_version": {
+      "type": "string",
+      "pattern": "^2\\.0\\.0$",
+      "description": "Schema version identifier. Must be '2.0.0' for v2 format signatures.",
+      "examples": ["2.0.0"]
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Definition of the 8 behavioral analysis dimensions used in fingerprinting.",
+      "required": ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"],
+      "properties": {
+        "D1": {
+          "type": "string",
+          "description": "Static TCP fingerprinting (TTL, window size, options)"
+        },
+        "D2": {
+          "type": "string",
+          "description": "TCP behavior under load"
+        },
+        "D3": {
+          "type": "string",
+          "description": "Temporal analysis (jitter, response speed)"
+        },
+        "D4": {
+          "type": "string",
+          "description": "ICMP response patterns"
+        },
+        "D5": {
+          "type": "string",
+          "description": "Error handling patterns"
+        },
+        "D6": {
+          "type": "string",
+          "description": "UDP behavior"
+        },
+        "D7": {
+          "type": "string",
+          "description": "TLS/SSL handshake characteristics"
+        },
+        "D8": {
+          "type": "string",
+          "description": "Hardware/virtualization detection"
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "Defines the structure of signature data including probe responses, temporal metrics, and metadata.",
+      "required": ["probe_responses", "temporal", "metadata"],
+      "properties": {
+        "probe_responses": {
+          "type": "object",
+          "description": "Expected responses to various network probes across different protocols.",
+          "properties": {
+            "tcp_syn_ack": {
+              "type": "object",
+              "description": "Response to TCP SYN probe (SYN-ACK packet)",
+              "required": ["ttl", "window_size", "options"],
+              "properties": {
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255,
+                  "description": "Time-to-Live value in the IP header. Linux typically 64, Windows 128, Cisco 255."
+                },
+                "window_size": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 65535,
+                  "description": "TCP window size in the response. OS-specific value."
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "TCP options present in the response (e.g., MSS, WScale, SACK, Timestamp)"
+                },
+                "df_bit": {
+                  "type": "boolean",
+                  "description": "Don't Fragment flag setting"
+                },
+                "mss": {
+                  "type": ["integer", "null"],
+                  "description": "Maximum Segment Size value if present"
+                },
+                "wscale": {
+                  "type": ["integer", "null"],
+                  "description": "Window scaling factor if present"
+                },
+                "sack_permitted": {
+                  "type": "boolean",
+                  "description": "Whether SACK is permitted in the response"
+                },
+                "timestamp": {
+                  "type": "boolean",
+                  "description": "Whether TCP timestamps are present"
+                }
+              }
+            },
+            "tcp_rst": {
+              "type": "object",
+              "description": "Response to TCP probe resulting in RST packet",
+              "required": ["ttl", "window_size", "options"],
+              "properties": {
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255
+                },
+                "window_size": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "icmp_echo_reply": {
+              "type": "object",
+              "description": "Response to ICMP Echo request",
+              "properties": {
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255
+                },
+                "code": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "payload_size": {
+                  "type": "integer",
+                  "description": "Payload size handling behavior"
+                }
+              }
+            }
+          }
+        },
+        "temporal": {
+          "type": "object",
+          "description": "Temporal characteristics of the target's response patterns.",
+          "required": ["response_time_ms", "jitter_ms", "consistency_score"],
+          "properties": {
+            "response_time_ms": {
+              "type": "number",
+              "description": "Expected response time in milliseconds"
+            },
+            "jitter_ms": {
+              "type": "number",
+              "description": "Expected jitter (variance in response time) in milliseconds"
+            },
+            "consistency_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "Consistency score indicating how reliably the target responds with expected timing"
+            },
+            "response_speed": {
+              "type": "string",
+              "enum": ["immediate", "fast", "normal", "slow", "very_slow"],
+              "description": "Qualitative response speed classification"
+            },
+            "scheduler_behavior": {
+              "type": "string",
+              "description": "Observed scheduler/interrupt behavior (interrupt_driven, hybrid, polling)"
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Metadata about the signature including target OS information.",
+          "required": ["target_os", "version", "confidence", "probe_timestamp", "environment"],
+          "properties": {
+            "target_os": {
+              "type": "string",
+              "description": "Operating system name/identifier"
+            },
+            "version": {
+              "type": "string",
+              "description": "OS version or version range"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "Confidence level for this signature (0.0 to 1.0)"
+            },
+            "probe_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 timestamp when the probe was sent"
+            },
+            "environment": {
+              "type": "string",
+              "enum": ["physical", "virtual", "container", "cloud"],
+              "description": "Deployment environment type"
+            },
+            "vendor": {
+              "type": "string",
+              "description": "OS vendor/ manufacturer"
+            },
+            "family": {
+              "type": "string",
+              "description": "OS family classification"
+            },
+            "device_type": {
+              "type": "string",
+              "description": "Device type (server, workstation, router, etc.)"
+            }
+          }
+        },
+        "behavioral": {
+          "type": "object",
+          "description": "Behavioral characteristics across D1-D8 dimensions.",
+          "properties": {
+            "congestion": {
+              "type": "object",
+              "description": "TCP congestion control algorithm characteristics",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": ["reno", "cubic", "bbr", "vegas", "westwood", "unknown"],
+                  "description": "Congestion control algorithm"
+                },
+                "window_scaling": {
+                  "type": "boolean",
+                  "description": "Whether TCP window scaling is supported"
+                }
+              }
+            },
+            "ip": {
+              "type": "object",
+              "description": "IP layer characteristics",
+              "properties": {
+                "ttl": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255
+                },
+                "df_flag": {
+                  "type": "boolean",
+                  "description": "Don't Fragment flag"
+                },
+                "ip_id_pattern": {
+                  "type": "string",
+                  "enum": ["sequential", "random", "incrementing", "zero", "broken"],
+                  "description": "IP ID generation pattern"
+                }
+              }
+            },
+            "hardware": {
+              "type": "object",
+              "description": "Hardware/virtualization detection indicators",
+              "properties": {
+                "virtualization": {
+                  "type": "boolean",
+                  "description": "Whether virtualization is detected"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["physical", "virtual", "container", "cloud", "cloud_vm", "emulator"],
+                  "description": "Hardware type classification"
+                },
+                "provider": {
+                  "type": "string",
+                  "description": "Cloud provider name if applicable"
+                }
+              }
+            },
+            "quirks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of observed TCP/IP quirks or anomalies"
+            }
+          }
+        }
+      }
+    },
+    "validation_rules": {
+      "type": "object",
+      "description": "Validation rules that apply to signature matching.",
+      "properties": {
+        "ttl_range": {
+          "type": "object",
+          "description": "Valid TTL range",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max": {
+              "type": "integer",
+              "maximum": 255
+            }
+          }
+        },
+        "window_size_range": {
+          "type": "object",
+          "description": "Valid window size range",
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max": {
+              "type": "integer",
+              "maximum": 65535
+            }
+          }
+        },
+        "confidence_range": {
+          "type": "object",
+          "description": "Valid confidence score range",
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "max": {
+              "type": "number",
+              "maximum": 1.0
+            }
+          }
+        }
+      }
+    },
+    "backward_compatibility": {
+      "type": "object",
+      "description": "Backward compatibility settings for legacy signature formats.",
+      "properties": {
+        "nmap_style_support": {
+          "type": "boolean",
+          "description": "Whether Nmap-style signatures are supported"
+        },
+        "converters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Available format converters"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "format_version": "2.0.0",
+      "dimensions": {
+        "D1": "Static TCP fingerprinting (TTL, window size, options)",
+        "D2": "TCP behavior under load",
+        "D3": "Temporal analysis (jitter, response speed)",
+        "D4": "ICMP response patterns",
+        "D5": "Error handling patterns",
+        "D6": "UDP behavior",
+        "D7": "TLS/SSL handshake characteristics",
+        "D8": "Hardware/virtualization detection"
+      },
+      "structure": {
+        "probe_responses": {
+          "tcp_syn_ack": {
+            "ttl": 64,
+            "window_size": 65535,
+            "options": ["MSS", "WScale", "SACK", "Timestamp"],
+            "df_bit": true,
+            "mss": 1460,
+            "wscale": 7,
+            "sack_permitted": true,
+            "timestamp": true
+          }
+        },
+        "temporal": {
+          "response_time_ms": 0.15,
+          "jitter_ms": 0.02,
+          "consistency_score": 0.95,
+          "response_speed": "fast",
+          "scheduler_behavior": "interrupt_driven"
+        },
+        "metadata": {
+          "target_os": "Linux",
+          "version": "5.x",
+          "confidence": 0.95,
+          "probe_timestamp": "2024-01-15T10:30:00Z",
+          "environment": "physical",
+          "vendor": "Linux",
+          "family": "Linux",
+          "device_type": "general-purpose"
+        },
+        "behavioral": {
+          "congestion": {
+            "algorithm": "cubic",
+            "window_scaling": true
+          },
+          "ip": {
+            "ttl": 64,
+            "df_flag": true,
+            "ip_id_pattern": "incrementing"
+          },
+          "quirks": ["TSval", "WSopt"]
+        }
+      }
+    }
+  ]
+}
