@@ -1,5 +1,5 @@
 """
-OS Fingerprinting Module for Packet Phantom God
+OS Fingerprinting Module for Packet Phantom 
 ================================================
 
 Professional-grade OS fingerprinting using multi-dimensional behavioral analysis.
