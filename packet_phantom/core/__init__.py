@@ -1,5 +1,5 @@
 """
-Core module initialization for Packet Phantom God Tier.
+Core module initialization for Packet Phantom .
 """
 
 from .checksum import (
