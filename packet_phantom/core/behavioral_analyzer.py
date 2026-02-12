@@ -1,5 +1,5 @@
 """
-Behavioral Analysis Engine for Packet Phantom God OS Fingerprinting.
+Behavioral Analysis Engine for Packet Phantom  OS Fingerprinting.
 
 This module implements the D1-D8 dimension analyzers for comprehensive
 behavioral fingerprinting of target systems.
