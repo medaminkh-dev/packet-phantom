@@ -1,5 +1,5 @@
 """
-Educational Mode for Packet Phantom God OS Fingerprinting.
+Educational Mode for Packet Phantom  OS Fingerprinting.
 
 This module provides learner-friendly explanations and step-by-step
 walkthroughs of OS fingerprinting concepts and results.
