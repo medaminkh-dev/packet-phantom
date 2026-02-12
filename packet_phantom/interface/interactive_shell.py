@@ -2,7 +2,7 @@
 """
 Interactive Packet Phantom Shell
 
-A God Tier interactive shell for packet crafting with full security features.
+A  interactive shell for packet crafting with full security features.
 
 Usage:
     python -m packet_phantom.interface.interactive_shell
