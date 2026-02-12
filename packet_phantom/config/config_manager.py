@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Configuration Manager for Packet Phantom God Tier
+Configuration Manager for Packet Phantom 
 
 Features:
 - JSON configuration file
